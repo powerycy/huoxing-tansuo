@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>死亡搁浅 荒野来信 · 花海档案预览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0d16;color:#c9c7d5;font:13px system-ui}header{min-height:100px;padding:14px 22px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}h1{font-size:16px;font-weight:400;letter-spacing:2px;margin:0 0 6px}p{font-size:11px;color:#9692ad;margin:0;line-height:1.7}nav{display:flex;gap:7px;flex-wrap:wrap}button,a{border:1px solid #9f92bd4d;background:#bbb0d409;color:#d1c9e3;font:inherit;padding:9px 12px;cursor:pointer;text-decoration:none}button:hover,a:hover{background:#bbb0d422}button:disabled{opacity:.35;cursor:wait}iframe{display:block;border:0;width:100%;height:calc(100dvh - 120px);min-height:360px}#status{padding:7px 22px;font-size:11px;color:#aba4bf}
+</style></head>
+<body>
+<header><div><h1>死亡搁浅 荒野来信 · 花海档案</h1><p>使用真实游戏镜头与生长过程；使用独立预览存档。</p></div>
+<nav aria-label="预览章节"><button id="begin" disabled>从巨月开始</button><button data-phase="grass" disabled>草本 · 方向</button><button data-phase="first" disabled>初花 · 姓名</button><button data-phase="bloom" disabled>花海 · 作品</button><button data-phase="full" disabled>相遇 · 收录</button><button id="archive" disabled>查看档案</button><a href="../" target="_blank" rel="noopener">打开游戏</a></nav></header>
+<iframe id="game" title="花海事件实机预览" allow="autoplay; fullscreen" src="../?event-preview=1&time-preview=night&quality=high"></iframe>
+<p id="status" role="status">正在加载场景…</p>
+<script type="module">
+const frame=document.getElementById('game'), status=document.getElementById('status');
+const app=()=>frame.contentWindow.REGOLITH;
+let started=false;
+const closePanels=()=>frame.contentDocument.querySelector('.overlay.sheet:not(.hidden) [data-close]')?.click();
+document.getElementById('begin').onclick=()=>{closePanels();app().startGame(false,false);started=true;};
+for(const button of document.querySelectorAll('[data-phase]'))button.onclick=()=>{
+  const a=app();if(a.state!==2){status.textContent='请先关闭游戏中的面板。';return;}
+  a.rupture.debugPhase(button.dataset.phase,.42);
+};
+document.getElementById('archive').onclick=()=>{
+  closePanels();const a=app();a.rupture.debugPhase('navigate',.1);
+  frame.contentDocument.getElementById('btnProfile').click();
+};
+setInterval(()=>{
+  const a=app();const ready=!!a?.startGame;
+  document.getElementById('begin').disabled=!ready;
+  for(const button of document.querySelectorAll('[data-phase]'))button.disabled=!ready||!started||a.state!==2;
+  document.getElementById('archive').disabled=!ready||!started;
+  status.textContent=ready?(started?`${a.rupture.phase} · ${a.rupture.phaseT.toFixed(1)} 秒 ｜ 空格交还镜头，I 查看档案，Esc 暂停`:'场景就绪 · 点击“从巨月开始”，或进入后选取一个章节。'):'正在加载场景…';
+},400);
+</script></body></html>

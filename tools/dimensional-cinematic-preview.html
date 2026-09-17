@@ -1,0 +1,49 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8">
+<title>中塔星空与地裂 · 演出逐段检查</title>
+<style>body{margin:0;background:#080c10;color:#ccd0d2;font:12px system-ui}iframe{display:block;width:100%;height:calc(100vh - 88px);border:0}footer{height:72px;padding:8px 16px}button{background:#1a242b;color:#dae0df;border:1px solid #546369;padding:7px 12px;margin:0 6px 6px 0;cursor:pointer}output{display:block;white-space:pre-wrap;font:11px monospace}</style>
+<iframe id="game" src="../?escape-preview=1&time-preview=night"></iframe>
+<footer><button data-time="0">开始演出</button><button data-time="4.7">定格 · 蓝光升空</button><button data-time="14.5">定格 · 旋转星空</button><button data-time="20">定格 · 山脊下沉</button><button data-time="25.5">定格 · 尘墙逼近</button><button id="play">继续播放</button><button id="skip">跳过演出</button><output id="status">游戏加载中；仅使用独立预览存档。</output></footer>
+<script type="module">
+// A visible local QA surface. All controls exercise the actual game, shader
+// and rig; no separate renderer or replacement image is used in this page.
+const frame=document.querySelector('iframe'), status=document.querySelector('#status');
+let restoreAdvance;
+function restore(A){if(restoreAdvance){A.escape.advanceIntro=restoreAdvance;restoreAdvance=null;}}
+for(const button of document.querySelectorAll('[data-time]'))button.onclick=()=>{
+  const A=frame.contentWindow.REGOLITH;
+  if(!A?.startGame){status.textContent='仍在加载，请稍后点击。';return;}
+  restore(A);A.startGame(false,false);
+  frame.contentWindow.document.querySelector('#pause').classList.add('hidden');
+  const time=Number(button.dataset.time);
+  if(time>0){
+    A.escape.introElapsed=time;
+    restoreAdvance=A.escape.advanceIntro.bind(A.escape);
+    A.escape.advanceIntro=()=>false;
+  }
+  frame.contentWindow.focus();
+};
+document.querySelector('#play').onclick=()=>{
+  const A=frame.contentWindow.REGOLITH;if(!A)return;restore(A);
+  A.state=2;frame.contentWindow.document.querySelector('#pause').classList.add('hidden');frame.contentWindow.focus();
+};
+document.querySelector('#skip').onclick=()=>{
+  const A=frame.contentWindow.REGOLITH;if(!A)return;restore(A);
+  A.state=2;frame.contentWindow.document.querySelector('#pause').classList.add('hidden');
+  A.escapeCamera.skip();frame.contentWindow.focus();
+};
+setInterval(()=>{
+  const A=frame.contentWindow.REGOLITH;if(!A?.escapeCamera)return;
+  const e=A.escape,c=A.escapeCamera,r=A.rover;
+  const shaderErrors=(A.engine.renderer.info.programs||[]).filter(p=>p.diagnostics?.runnable===false);
+  status.textContent=JSON.stringify({state:A.state,phase:e.phase,shot:c.state?.title||'驾驶',intro:+e.introElapsed.toFixed(2),
+    chaseClock:+e.elapsed.toFixed(2),front:+e.front.toFixed(2),locked:e.cinematicActive,
+    painting:A.fold.uniforms.uFoldPaintReady.value===1,shaderErrors:shaderErrors.length,
+    sky:+A.starfall.uniforms.uSkyAmount.value.toFixed(2),quake:+A.starfall.uniforms.uQuakeOn.value.toFixed(2),
+    strokes:A.starfall.strokes.geometry.instanceCount,
+    turn:+A.starfall.uniforms.uSkyTurn.value.toFixed(3),visualFront:+A.starfall.uniforms.uQuakeFront.value.toFixed(1),
+    dust:A.starfall.mass.dust.geometry.instanceCount,dustAtlas:!!A.starfall.mass.dust.material.uniforms.uAtlasReady?.value,
+    resumeBlend:c.resumeBlend,look:c.look.toArray().map(n=>+n.toFixed(2)),
+    rover:r.pos.toArray().map(n=>+n.toFixed(2)),fov:+A.engine.camera.fov.toFixed(1),
+    camera:A.engine.camera.position.toArray().map(n=>+n.toFixed(2)),fps:+(A.fps||0).toFixed(1)},null,0);
+},250);
+</script></html>

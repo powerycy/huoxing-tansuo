@@ -1,0 +1,7 @@
+assets/models/moon-rover/moon-rover-4k.glb filter=lfs diff=lfs merge=lfs -text
+assets/models/sam/sam-porter-walk-v2.glb filter=lfs diff=lfs merge=lfs -text
+assets/models/sam/sam-porter-walk-v3.glb filter=lfs diff=lfs merge=lfs -text
+assets/models/sam/sam-porter-walk.glb filter=lfs diff=lfs merge=lfs -text
+output/recordings/.discarded/flower-event-2026-09-06T11-11-30-078Z.webm filter=lfs diff=lfs merge=lfs -text
+output/recordings/opening-ui-2026-09-05-take1.mov filter=lfs diff=lfs merge=lfs -text
+output/recordings/荒野来信-第二大事件-星空地裂-2026-09-07T01-00-00-076Z.webm filter=lfs diff=lfs merge=lfs -text

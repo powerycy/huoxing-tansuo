@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>实验光追 GPU 检查</title>
+<style>body{margin:0;background:#18202a;color:white;font:14px monospace}canvas{width:100vw;height:80vh;display:block}aside{position:fixed;bottom:0;background:#17202c;padding:12px;z-index:2}button{padding:12px}pre{white-space:pre-wrap}</style>
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+<canvas id="stage"></canvas><aside><button id="off">关闭</button><button id="on">开启</button><button id="check">检查 GPU 输出</button><pre id="result">准备中</pre></aside>
+<script type="module">
+import * as THREE from 'three';import {Engine} from './src/core/engine.js';
+const engine=new Engine(document.querySelector('canvas'),'medium');
+engine.scene.background=new THREE.Color(.15,.19,.25);engine.scene.fog=null;
+engine.camera.position.set(5,4,7);engine.camera.lookAt(0,0,0);engine.fill.intensity=2;
+const root=new THREE.Group();const box=new THREE.Mesh(new THREE.BoxGeometry(2,2,2),new THREE.MeshStandardMaterial({color:0xc0b070}));
+box.position.y=1.15;root.add(box);engine.scene.add(root);
+const plane=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x8299bb}));plane.rotation.x=-Math.PI/2;engine.scene.add(plane);
+engine.raySources=[{root}];engine.rayVisible=true;
+engine.onRayTracingFailure=e=>{document.querySelector('#result').textContent='FAIL: '+e.message;};
+document.querySelector('#off').onclick=()=>{engine.setRayTracing(false);document.querySelector('#result').textContent='已关闭';};
+document.querySelector('#on').onclick=()=>{engine.setRayTracing(true);document.querySelector('#result').textContent='已开启';};
+document.querySelector('#check').onclick=()=>{
+ const result={enabled:!!engine.rayPass,glError:engine.renderer.getContext().getError(),stages:engine.rayPass?.gpuErrors};
+ if(engine.rayPass){const target=engine.rayPass.aoTarget,pixels=new Uint8Array(target.width*target.height*4);engine.renderer.readRenderTargetPixels(target,0,0,target.width,target.height,pixels);let max=0,sum=0,n=0;for(let i=0;i<pixels.length;i+=4){max=Math.max(max,pixels[i]);sum+=pixels[i];if(pixels[i])n++;}Object.assign(result,{maxAO:max,meanAO:sum/(pixels.length/4),affectedPixels:n,aoSize:[target.width,target.height]});}
+ document.querySelector('#result').textContent=JSON.stringify(result,null,2);
+};
+function draw(){requestAnimationFrame(draw);engine.render(1/60);}draw();document.querySelector('#result').textContent='已关闭';
+</script></html>

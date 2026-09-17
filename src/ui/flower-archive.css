@@ -1,0 +1,64 @@
+/* Quiet typography over the real scene: no animated exposure or screen wash. */
+.flower-archive-cue{position:fixed;z-index:25;left:6.5vw;bottom:24vh;width:min(460px,38vw);pointer-events:none;color:#f3eef8;text-shadow:0 2px 18px #020409,0 1px 4px #020409}
+.flower-archive-cue[hidden],.flower-archive-notice[hidden]{display:none}
+.flower-archive-kicker{display:flex;gap:20px;align-items:center;color:#becce3;font-size:10px;letter-spacing:.20em}
+.flower-archive-kicker>span:first-child{font-variant-numeric:tabular-nums;letter-spacing:.12em;color:#a8a6c3}
+.flower-archive-cue h2{margin:20px 0 17px;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:clamp(24px,2.5vw,38px);font-weight:300;line-height:1.6;letter-spacing:.10em;text-wrap:balance}
+.flower-archive-cue[data-chapter="2"] h2{font-size:clamp(23px,2.25vw,34px)}
+.flower-archive-detail{font-size:clamp(12px,1vw,14px);line-height:1.95;letter-spacing:.07em;color:#d5d7df;max-width:35em;text-wrap:pretty}
+.flower-archive-keywords{margin-top:19px;font-size:11px;line-height:1.8;letter-spacing:.12em;color:#bcb6d8}
+.flower-archive-track{display:flex;gap:7px;margin-top:25px}
+.flower-archive-track i{display:block;width:21px;height:1px;background:rgba(182,199,228,.24)}
+.flower-archive-track i.on{background:#b6c7e4}
+.flower-story-active .event-camera-caption{bottom:5.5vh;align-items:center}
+.flower-story-active .event-camera-caption h2{font-size:12px;letter-spacing:.16em;margin:0}
+.flower-story-active #eventCameraKind,.flower-story-active #eventCameraDetail{display:none}
+.flower-story-active #eventCameraHint{font-size:9px;margin-top:6px;opacity:.65}
+.flower-story-active .event-camera-caption button{background:transparent;border-color:rgba(167,176,196,.3);font-size:10px;color:#b3beca}
+.flower-archive-notice{position:fixed;z-index:26;left:50%;top:19vh;transform:translateX(-50%);display:flex;align-items:flex-start;width:min(390px,86vw);border:1px solid rgba(190,176,219,.3);border-left:2px solid #bab1d4;background:linear-gradient(110deg,rgba(12,13,27,.93),rgba(12,16,27,.75));box-shadow:0 8px 36px #0004}
+.flower-archive-notice>button:first-child{flex:1;min-width:0;text-align:left;padding:17px 21px}
+.flower-archive-notice span,.flower-archive-notice b,.flower-archive-notice small{display:block}
+.flower-archive-notice span{font-size:9px;letter-spacing:.20em;color:#beb4d6}
+.flower-archive-notice b{font-size:14px;letter-spacing:.08em;font-weight:400;line-height:1.65;margin:8px 0;color:#e6e3ed}
+.flower-archive-notice small{font-size:10px;line-height:1.8;color:#bdc5d6}
+.flower-archive-notice kbd{padding:1px 5px;margin-right:5px}
+.flower-archive-dismiss{font-size:23px;padding:9px 14px;color:#b4aec8}
+.flower-archive-notice button:focus-visible{outline:1px solid #d3c4f3;outline-offset:-4px}
+.profile-copy #profileIntro{margin-top:17px;font-size:clamp(13px,1.3vw,16px);line-height:1.95;color:#b7b1c6;user-select:text}
+.profile-focus{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.profile-channel-handle{user-select:text;cursor:text;touch-action:auto}
+.profile-focus span{padding:7px 10px;border:1px solid #b4a7d333;font-size:11px;letter-spacing:.07em;color:#c0b7d9}
+.profile-flower-seal{font-size:10px;letter-spacing:.16em;line-height:1.8;color:#cbbce2;margin-bottom:28px;padding-bottom:15px;border-bottom:1px solid #b4a7d333}
+.overlay.sheet.flower-profile{background:linear-gradient(104deg,rgba(8,8,18,.94),rgba(12,14,25,.88) 48%,rgba(12,16,27,.58));backdrop-filter:blur(6px) saturate(.85);animation:flower-letter-open .7s ease-out}
+.flower-profile .panel-head{border-top-color:#beb0dc;background:linear-gradient(90deg,#10101fe8,#161725a3)}
+.flower-profile .panel-head h2::before{content:"001 / ";color:#b7a8d0}
+.flower-profile .profile-identity{border-left-color:#baacd6}
+.flower-profile .profile-section-label,.flower-profile .profile-kicker{color:#c1b2da}
+@keyframes flower-letter-open{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.boot-wordmark{position:absolute;left:clamp(38px,6vw,100px);top:12%;font-size:10px;letter-spacing:.35em;color:#c2d7db}
+.menu-brand{left:clamp(52px,17vw,320px);top:16vh;width:min(560px,70vw);aspect-ratio:auto}
+.menu-edition{font-size:10px;letter-spacing:.35em;color:#465d60;margin-bottom:28px}
+.menu-wordmark{font-family:"Songti SC","STSong","SimSun",serif;font-size:clamp(42px,5.6vw,84px);font-weight:400;letter-spacing:.18em;line-height:1.45;color:#293a3b;white-space:nowrap}
+.menu-project-title{position:static;margin:30px 0 0;padding-top:18px;border-top:1px solid #435c5d4d;width:fit-content;font-size:11px;letter-spacing:.22em;color:#466266}
+.overlay.sheet::before{content:"荒原\A来信";white-space:pre;right:5vw;top:12%;width:auto;aspect-ratio:auto;-webkit-mask:none;mask:none;background:none;font-family:"Songti SC","STSong","SimSun",serif;font-size:clamp(64px,10vw,170px);font-weight:300;line-height:1.7;letter-spacing:.24em;color:rgba(180,202,216,.035)}
+.panel-head h2::before{content:"链路 / "}
+@media(max-width:700px){
+  .flower-archive-cue{left:6vw;bottom:25vh;width:min(420px,85vw)}
+  .flower-archive-cue h2,.flower-archive-cue[data-chapter="2"] h2{font-size:24px;line-height:1.5;margin:14px 0 12px}
+  .flower-archive-detail{font-size:12px;line-height:1.75}
+  .flower-archive-keywords{font-size:10px;margin-top:12px}
+  .flower-archive-track{margin-top:17px}
+  .flower-story-active .event-camera-caption{flex-direction:row;align-items:flex-end;gap:12px}
+  .flower-story-active .event-camera-caption button{padding:8px}
+  .flower-archive-notice{top:23vh}
+  .menu-brand{left:30px;top:15vh;width:85vw}
+  .menu-edition{margin-bottom:20px;font-size:9px}
+  .menu-wordmark{font-size:clamp(35px,9vw,56px)}
+}
+@media(max-height:520px){
+  .flower-archive-cue{bottom:23vh;width:43vw}
+  .flower-archive-cue h2,.flower-archive-cue[data-chapter="2"] h2{font-size:21px;margin:8px 0}
+  .flower-archive-detail{font-size:10px;line-height:1.6}
+  .flower-archive-keywords{font-size:9px;margin-top:8px}
+  .flower-archive-track{margin-top:12px}
+}

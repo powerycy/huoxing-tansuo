@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sam 中等负重步行动画校验</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#858b91;color:#eef3f5;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}canvas{display:block;width:100%;height:100%}
+    .bar{position:fixed;left:22px;top:20px;right:22px;display:flex;align-items:center;gap:12px;pointer-events:none}.bar h1{margin:0 auto 0 0;font-size:14px;font-weight:500;letter-spacing:.16em}.bar button,.facebar button{pointer-events:auto;border:1px solid rgba(255,255,255,.36);background:rgba(18,24,29,.56);color:#f3f7f8;padding:8px 13px;cursor:pointer}.bar button.on,.facebar button.on{border-color:#78dff2;color:#78dff2}.facebar{position:fixed;right:22px;top:66px;display:flex;align-items:center;gap:8px}.facebar span{margin-right:4px;color:#d9e0e2;letter-spacing:.12em}.facebar button{padding:6px 10px}.note{position:fixed;left:22px;bottom:20px;padding:10px 13px;background:rgba(18,24,29,.58);border-left:2px solid #78dff2;color:#d9e0e2}.loading{position:fixed;inset:0;display:grid;place-items:center;background:#858b91;letter-spacing:.16em}.loading.hidden{display:none}
+  </style>
+  <style>
+    .bar{gap:8px;flex-wrap:wrap}.timeline{position:fixed;left:22px;right:22px;bottom:68px;max-width:540px;padding:10px 12px;background:#12181dad}.keys{display:flex;gap:8px;align-items:center}.keys button{background:none;color:#e5ecee;border:1px solid #b7c6cf66;padding:5px 8px;cursor:pointer}.keys output{margin-left:auto}#phase{width:100%;margin:10px 0 0;accent-color:#78dff2}.note{font-size:12px}.facebar{top:74px}@media(max-width:700px){.bar h1{flex-basis:100%}.facebar{top:118px}.bar{left:12px;right:12px}.timeline{left:12px;right:12px}.note{left:12px;right:12px}}
+  </style>
+  <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <div class="bar"><h1>SAM PORTER / 步行 V3</h1><button data-view="front">正面</button><button data-view="back">背面</button><button class="on" data-view="side">正侧面</button><button data-view="oblique">斜后侧</button><button data-view="hands">手部</button><button id="toggle">暂停</button></div>
+  <div class="facebar"><span>表情</span><button class="on" data-expression="neutral">自然</button><button data-expression="smile">微笑</button><button data-expression="serious">严肃</button><button data-expression="speak">嘴部测试</button></div>
+  <div class="timeline"><div class="keys"><button data-phase="0">脚跟接触</button><button data-phase="0.16">承重</button><button data-phase="0.35">经过</button><button data-phase="0.60">脚尖离地</button><output id="phase-label">0%</output></div><input id="phase" type="range" min="0" max="0.999" step="0.001" value="0" aria-label="步行进度" /></div>
+  <div class="note">独立预览 · 拖动进度检查落脚与重心 · 面部表情已保留</div>
+  <div class="loading" id="loading">正在载入人物、货物与负重步行动画……</div>
+  <script type="module" src="src/character-preview.js"></script>
+</body>
+</html>
