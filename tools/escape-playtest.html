@@ -1,0 +1,55 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>二维化逃生集成测试</title>
+<style>body{margin:0;background:#101419;color:#d2d5d7;font:14px monospace}header{padding:16px}button{padding:10px;margin-right:10px}iframe{width:100%;height:70vh;border:0}pre{white-space:pre-wrap;padding:16px}</style>
+<header><button id="drive">测试实际地形返航</button><button id="home">测试母港 E 完成</button><button id="stop">停止测试</button></header>
+<iframe id="game" src="../?escape-preview=1&time-preview=night&quality=low"></iframe><pre id="result" role="status">等待游戏加载。仅使用预览存档，不接触正式进度。</pre>
+<script type="module">
+// Explicit, local developer harness. Uses the real game's frame loop, input
+// boundary, terrain, collisions and delivery methods; no teleport during a run.
+// It is not a benchmark or a claim that an automatic driver plays like a person.
+const frame=document.querySelector('iframe'),result=document.querySelector('#result');
+let restore=null;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function stop(){restore?.();restore=null;}
+document.querySelector('#stop').onclick=()=>{stop();result.textContent+='\n测试停止';};
+function run(homeOnly){
+  stop();const A=frame.contentWindow.REGOLITH;
+  if(!A?.startGame){result.textContent='仍在加载，请稍后再试。';return;}
+  A.startGame(false,false);
+  const input=A.input,poll=input.poll.bind(input),down=input.down.bind(input);
+  const route=A.fold.route, e=A.escape;
+  if(!route?.length){result.textContent='FAIL：没有找到安全返航路线';return;}
+  if(homeOnly){e.skipIntro();e.finishIntro();A.escapeCamera.cancel();const a=e.axis;A.rover.placeAt(e.home.x-a.x*9,e.home.z-a.z*9,Math.atan2(a.x,a.z));}
+  const startTime=A.game.met;let index=0,holding=false,maxSpeed=0,minHull=100,minGap=Infinity;
+  let bestHome=Infinity,iteration=0;
+  input.down=(...keys)=>holding&&keys.includes('KeyE')||down(...keys);
+  input.poll=()=>{
+    const raw=poll();
+    if(!e.active)return raw;
+    const r=A.rover,p=r.pos,speed=Math.abs(r.speed);
+    const homeDist=Math.hypot(p.x-e.home.x,p.z-e.home.z);
+    bestHome=Math.min(bestHome,homeDist);maxSpeed=Math.max(maxSpeed,speed);minHull=Math.min(minHull,A.game.hull);minGap=Math.min(minGap,e.gap);
+    holding=homeDist<10.5&&r.vel.length()<.75;
+    if(homeOnly||homeDist<10.0)return {...raw,throttle:0,steer:0,brake:1,boost:false};
+    while(index<route.length-2&&Math.hypot(p.x-route[index].x,p.z-route[index].z)<9)index++;
+    const target=route[index], heading=Math.atan2(r.forward.x,r.forward.z), bearing=Math.atan2(target.x-p.x,target.z-p.z);
+    const angle=Math.atan2(Math.sin(bearing-heading),Math.cos(bearing-heading));
+    const desired=homeDist<75?Math.min(12,Math.max(2,(homeDist-8)*.5)):Math.abs(angle)>.5?7:Math.abs(angle)>.2?14:38;
+    const braking=speed>desired+2;
+    return {...raw,throttle:braking?0:clamp(desired/(desired>20?40:20),.2,1),steer:clamp(-angle*2,-1,1),brake:braking?1:0,boost:desired>20};
+  };
+  let timer;
+  restore=()=>{clearInterval(timer);input.poll=poll;input.down=down;holding=false;A.rover.cancelBoost();};
+  timer=setInterval(()=>{
+    iteration++;
+    const data={phase:e.phase,seconds:+(A.game.met-startTime).toFixed(2),introSeconds:+e.introElapsed.toFixed(2),chaseClock:+e.elapsed.toFixed(2),routePoints:route.length,
+      waypoint:index,homeDistance:+Math.hypot(A.rover.pos.x-e.home.x,A.rover.pos.z-e.home.z).toFixed(2),
+      bestHome:+bestHome.toFixed(2),maxKmh:+(maxSpeed*3.6).toFixed(1),minHull:+minHull.toFixed(1),minGap:+minGap.toFixed(1)};
+    result.textContent=JSON.stringify(data,null,2);
+    if(e.terminal||data.chaseClock>65||iteration>1800){
+      result.textContent=''+(e.phase==='complete'?'PASS':'FAIL')+'\n'+result.textContent;stop();
+    }
+  },100);
+}
+document.querySelector('#drive').onclick=()=>run(false);
+document.querySelector('#home').onclick=()=>run(true);
+</script></html>

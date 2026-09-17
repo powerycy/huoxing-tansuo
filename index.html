@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>死亡搁浅 荒野来信</title>
+<meta name="description" content="《死亡搁浅 荒野来信》——驾驶火星车穿越荒野，在巨月与花海之间，送达一封与你建立联系的信。" />
+<meta name="theme-color" content="#05060a" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='%23cfc6b8'/><circle cx='11' cy='12' r='3.4' fill='%23a79c8c'/><circle cx='20' cy='19' r='4.6' fill='%23a79c8c'/><circle cx='22' cy='9' r='2' fill='%23a79c8c'/></svg>" />
+<!-- ?v= is a cache buster: GitHub Pages serves assets with max-age=600, so a
+     returning player keeps the old layout for ten minutes after a deploy.
+     Bump this whenever styles.css changes in a way players must see. -->
+<link rel="stylesheet" href="src/ui/styles.css?v=16" />
+<link rel="stylesheet" href="src/ui/flower-archive.css?v=1" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<canvas id="stage" aria-label="游戏画面"></canvas>
+<section id="eventCinematic" class="event-camera-caption" hidden aria-label="地表异常演出">
+  <div><small id="eventCameraKind">地表异常记录</small><h2 id="eventCameraTitle">寂静花潮</h2><p id="eventCameraDetail">车辆驻停</p><p id="eventCameraHint">空格跳过镜头 · Esc 暂停</p></div>
+  <button id="skipEventCamera" type="button">空格 · 交还镜头</button>
+</section>
+<section id="flowerArchiveCue" class="flower-archive-cue" hidden aria-label="花海来信">
+  <div class="flower-archive-copy" aria-live="polite" aria-atomic="true">
+    <p class="flower-archive-kicker"><span id="flowerArchiveNumber"></span><span id="flowerArchiveLabel"></span></p>
+    <h2 id="flowerArchiveTitle"></h2>
+    <p class="flower-archive-detail" id="flowerArchiveDetail"></p>
+    <p class="flower-archive-keywords" id="flowerArchiveKeywords"></p>
+  </div>
+  <div class="flower-archive-track" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+</section>
+<aside id="flowerArchiveNotice" class="flower-archive-notice" hidden aria-label="花海档案已收录">
+  <button id="openFlowerArchive" type="button"><span>花海来信 · 已收录</span><b>好奇的小逸的创作档案</b><small><kbd>I</kbd> 查看简介、作品与联系频道</small></button>
+  <button id="dismissFlowerArchive" class="flower-archive-dismiss" type="button" aria-label="收起来信提示">×</button>
+</aside>
+
+<!-- ============ BOOT / LOADING ============ -->
+<div id="boot" class="overlay boot">
+  <div class="boot-inner">
+    <p class="boot-wordmark">地表通信档案 · 001</p>
+    <p class="boot-kicker">EXPEDITION 01 / UTOPIA PLANITIA</p>
+    <h1 class="title">死亡搁浅 荒野来信</h1>
+    <p class="subtitle">孤立中继</p>
+    <div class="loadbar"><i id="loadfill"></i></div>
+    <p class="loadtext" id="loadtext">正在初始化遥测链路……</p>
+    <p class="legal">火星殖民理事会 · 地表后勤部 · MR-7「仙后座」</p>
+  </div>
+</div>
+
+<!-- ============ MAIN MENU ============ -->
+<div id="menu" class="overlay menu hidden">
+  <div class="menu-light-wash" aria-hidden="true"></div>
+  <div class="menu-brand">
+    <p class="menu-edition">地表通信 / 第一封</p>
+    <h1 class="menu-wordmark">死亡搁浅 荒野来信</h1>
+    <p class="menu-project-title">把好奇，送往更远的地方。</p>
+  </div>
+  <nav class="menu-actions" aria-label="主菜单">
+    <button class="menu-option primary" id="btnPlay"><i aria-hidden="true"></i>开始运输</button>
+    <button class="menu-option" id="btnContinue" hidden><i aria-hidden="true"></i>继续任务</button>
+    <button class="menu-option" id="btnProfile"><i aria-hidden="true"></i>个人档案</button>
+    <button class="menu-option" id="btnControls"><i aria-hidden="true"></i>操作说明</button>
+    <button class="menu-option" id="btnSettings"><i aria-hidden="true"></i>系统设置</button>
+  </nav>
+</div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hud hidden">
+  <!-- ── row 1 ─────────────────────────────────────────────── -->
+  <div class="z-mission">
+    <section class="panel mission" id="missionBox">
+      <header><span id="missionTag">任务 01</span></header>
+      <h3 id="missionName">低温启动</h3>
+      <div class="mission-obj" id="missionObj">—</div>
+    </section>
+  </div>
+
+  <div class="z-compass"><canvas id="compass" width="660" height="42"></canvas></div>
+
+  <div class="z-clock">
+    <section class="panel clock">
+      <div class="row"><span>主光源</span><b id="sunPhase">未检出</b></div>
+      <div class="row"><span>任务时间</span><b id="met">00:00:00</b></div>
+      <div class="row"><span>距离 · 阿瑞斯六号</span><b id="rangeHome">—</b></div>
+    </section>
+  </div>
+
+  <!-- ── row 2 ─────────────────────────────────────────────── -->
+  <div class="z-log"><div class="logfeed" id="logfeed"></div></div>
+
+  <div class="z-rail">
+    <section class="panel map">
+      <header><span>乌托邦平原</span><b id="mapScale">400 米</b></header>
+      <canvas id="minimap" width="300" height="300"></canvas>
+    </section>
+    <section class="panel bay">
+      <header><span>货舱架</span><b id="bayCount">0/6</b></header>
+      <div class="baygrid" id="baygrid"></div>
+    </section>
+  </div>
+
+  <!-- ── row 3 ─────────────────────────────────────────────── -->
+  <div class="z-bottom">
+    <section class="panel sys">
+      <header><span>系统</span></header>
+      <div class="gauge" id="gBatt"><label>电量 <small id="powerRange">预计 2.8 千米</small></label><b>100%</b><div class="bar"><i></i></div></div>
+      <div id="chargeHint" class="charge-hint hidden" role="status" aria-live="polite"></div>
+      <div class="gauge" id="gHeat"><label>温度</label><b>+18°</b><div class="bar"><i></i></div></div>
+      <div class="gauge" id="gHull"><label>车体完整度</label><b>100%</b><div class="bar"><i></i></div></div>
+      <div class="chips" id="sysChips"></div>
+    </section>
+
+    <section class="panel inst drive"><canvas id="speedo" width="150" height="150"></canvas></section>
+
+    <section class="panel inst wheels">
+      <header><span>车轮载荷 / 打滑</span></header>
+      <canvas id="wheelmon" width="236" height="112"></canvas>
+    </section>
+
+    <section class="panel inst gpr">
+      <header><span>奥卓德克地形扫描</span><b id="gprState">待机</b></header>
+      <canvas id="gprscope" width="290" height="112"></canvas>
+    </section>
+  </div>
+
+  <!-- centre reticle / context prompt -->
+  <div class="reticle" id="reticle"></div>
+  <div class="prompt hidden" id="prompt"></div>
+
+  <!-- damage / discovery flashes -->
+  <div class="vig" id="vig"></div>
+  <div class="discovery hidden" id="discovery"><div class="d-kicker">地下回波</div><div class="d-name"></div><div class="d-sub"></div></div>
+</div>
+
+<!-- ============ CODEX ============ -->
+<div id="codex" class="overlay sheet hidden">
+  <div class="panel-head"><h2>现场档案</h2><button class="x" data-close="codex">关闭</button></div>
+  <div class="codex-body">
+    <ul class="codex-list" id="codexList"></ul>
+    <article class="codex-read" id="codexRead"><h3>请选择一份档案</h3><p>勘察盆地时恢复的日志碎片、样本分析和理事会遥测资料都会收录在这里。</p></article>
+  </div>
+</div>
+
+<!-- ============ PERSONAL ARCHIVE ============ -->
+<div id="profile" class="overlay sheet profile-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+  <div class="panel-head">
+    <div class="archive-heading"><span id="profileSource">地球链路 / 操作员记录</span><h2 id="profileTitle">个人档案</h2></div>
+    <button class="x" data-close="profile">关闭</button>
+  </div>
+  <main class="profile-body">
+    <section class="profile-identity" aria-label="个人简介">
+      <div class="profile-avatar" id="profileAvatar" aria-hidden="true"></div>
+      <div class="profile-nameplate">
+        <p class="profile-kicker">授权身份 · 地球档案</p>
+        <h3 id="profileName">—</h3>
+        <p class="profile-roman" id="profileRoman">—</p>
+        <p class="profile-role" id="profileRole">—</p>
+      </div>
+      <dl class="profile-status">
+        <div><dt>当前位置</dt><dd id="profileLocation">—</dd></div>
+        <div><dt>通信状态</dt><dd class="online" id="profileAvailability">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="profile-copy">
+      <p class="profile-flower-seal" id="profileFlowerSeal" hidden>收录于寂静花潮 · 一封来自荒原的信</p>
+      <p class="profile-section-label">关于我</p>
+      <p id="profileIntro">—</p>
+      <div class="profile-focus" id="profileFocus" aria-label="创作方向"></div>
+    </section>
+
+    <section class="profile-projects" aria-label="项目档案">
+      <p class="profile-section-label">作品与实践</p>
+      <div class="profile-project-grid" id="profileProjects"></div>
+    </section>
+
+    <section class="profile-channels" aria-label="社交媒体与联系方式">
+      <p class="profile-section-label">联系与交流</p>
+      <div class="profile-channel-grid" id="profileChannels"></div>
+      <p class="profile-config-note" id="profileConfigNote">通信地址尚未写入 · 等待地球链路授权</p>
+    </section>
+  </main>
+</div>
+
+<!-- ============ PAUSE / SETTINGS ============ -->
+<div id="pause" class="overlay sheet hidden">
+  <div class="panel-head"><h2 id="pauseTitle">系统设置</h2><button class="x" data-close="pause">关闭</button></div>
+  <div class="settings" id="settingsBody"></div>
+  <div class="panel-foot">
+    <button class="btn" id="btnResume">继续</button>
+    <button class="btn ghost" id="btnCodexFromPause">档案</button>
+    <button class="btn ghost" id="btnProfileFromPause">个人档案</button>
+    <button class="btn ghost" id="btnHelp">操作说明</button>
+    <button class="btn ghost danger" id="btnAbort">返回主菜单</button>
+  </div>
+</div>
+
+<!-- ============ CONTROLS ============ -->
+<div id="help" class="overlay sheet hidden">
+  <div class="panel-head"><h2>驾驶操作</h2><button class="x" data-close="help">关闭</button></div>
+  <div class="keys" id="keysBody"></div>
+</div>
+
+<noscript><div class="overlay boot"><div class="boot-inner"><h1 class="title">死亡搁浅 荒野来信</h1><p class="subtitle">需要启用浏览器脚本功能。</p></div></div></noscript>
+
+<aside id="escapeStatus" class="escape-status" hidden aria-label="二维化追击状态">
+  <strong id="escapeStatusTitle"></strong>
+  <progress id="escapeGap" max="1" value="1" aria-label="与后方边界的安全间距"></progress>
+  <small id="escapeStatusHint"></small>
+</aside>
+<section id="escapeResult" class="escape-result hidden" role="dialog" aria-modal="true" aria-labelledby="escapeResultTitle">
+  <div class="escape-result-inner">
+    <p id="escapeResultTag"></p>
+    <h2 id="escapeResultTitle"></h2>
+    <p id="escapeResultCopy"></p>
+    <div class="escape-result-actions">
+      <button class="btn" id="btnEscapeRetry">从中继塔重试</button>
+      <button class="btn ghost" id="btnEscapeMenu">返回主菜单</button>
+    </div>
+  </div>
+</section>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

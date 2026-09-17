@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>第二大事件实机录制</title>
+<style>
+body{margin:0;background:#111;color:#eee;font:15px system-ui}header{padding:10px;display:flex;gap:15px;align-items:center}button{padding:10px}#view{position:relative;overflow:hidden}iframe{width:1920px;height:1080px;transform-origin:0 0;border:0}#status{white-space:pre-wrap;padding:10px}canvas{display:none}
+</style>
+<header><button id="prepare">准备中继站与镜头</button><button id="record" disabled>开始录制第二大事件</button><button id="stop" disabled>停止并保存</button></header>
+<div id="status">正在加载独立预览，不影响正式存档…</div><div id="view"><iframe id="game" allow="autoplay; fullscreen" src="/?time-preview=night&amp;quality=high"></iframe></div>
+<canvas id="capture" width="1920" height="1080"></canvas><script type="module" src="./record-starfall.js"></script></html>

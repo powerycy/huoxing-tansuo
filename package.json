@@ -1,0 +1,12 @@
+{
+  "name": "letters-from-the-wasteland",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Letters from the Wasteland. A rover-only WebGL2 Mars delivery experience.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js 5176",
+    "dev": "node server.js 5176"
+  },
+  "engines": { "node": ">=18" }
+}
