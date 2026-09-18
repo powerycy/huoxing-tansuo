@@ -16,6 +16,14 @@ export const Save = {
     catch { return false; }
   },
   clear() { try { localStorage.removeItem(KEY); } catch { /* private mode */ } },
+  appearance() {
+    try { return JSON.parse(localStorage.getItem(KEY + '.vehicle') || 'null'); }
+    catch { return null; }
+  },
+  saveAppearance(value) {
+    try { localStorage.setItem(KEY + '.vehicle', JSON.stringify(value)); return true; }
+    catch { return false; }
+  },
   settings() {
     try { return JSON.parse(localStorage.getItem(KEY + '.set') || 'null') || {}; }
     catch { return {}; }
