@@ -29,7 +29,7 @@ package installation.
 
 ```bash
 git lfs install
-git clone https://github.com/powerycy/huoxing-tansuo.git
+git clone https://github.com/shengjidaguai-china/huoxing-tansuo.git
 cd huoxing-tansuo
 git lfs pull
 ```
