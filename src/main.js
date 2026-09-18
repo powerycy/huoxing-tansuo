@@ -29,10 +29,11 @@ import { STARFALL } from './world/starfall-field.js';
 import { DIMENSIONAL_RETURN_SECONDS } from './game/dimensional-cinematic.js';
 import { HUD } from './ui/hud.js';
 import { PROFILE } from './profile.js';
+import { Garage } from './ui/garage.js';
 import { FlowerArchive } from './ui/flower-archive.js';
 
 const $ = (id) => document.getElementById(id);
-const ST = { BOOT: 0, MENU: 1, PLAY: 2, PAUSE: 3, CODEX: 4, HELP: 5, PROFILE: 6, END: 7 };
+const ST = { BOOT: 0, MENU: 1, PLAY: 2, PAUSE: 3, CODEX: 4, HELP: 5, PROFILE: 6, END: 7, GARAGE: 8 };
 const query = new URLSearchParams(location.search);
 const stationPreview = query.get('station-preview');
 const chargerPreview = query.get('charger-preview');
@@ -311,6 +312,9 @@ async function boot() {
   buildHelpUI();
   buildProfileUI();
   App.flowerArchive = new FlowerArchive();
+  App.garage = new Garage(rover, Save.appearance(), value => Save.saveAppearance(value), () => {
+    App.state = ST.MENU;
+  });
   wireUI();
 
   App.tick = tick;
@@ -638,6 +642,7 @@ function wireUI() {
     ? App.escapeCamera.skip() : App.rupture?.skipCinematic();
   $('btnPlay').onclick = () => { Save.clear(); startGame(false, false); };
   $('btnContinue').onclick = () => startGame(false, true);
+  $('btnGarage').onclick = () => { App.state = ST.GARAGE; App.garage.open(); };
   $('btnControls').onclick = () => openPanel('help', ST.HELP);
   $('btnSettings').onclick = () => openPanel('pause', ST.PAUSE);
   $('btnProfile').onclick = openPersonalArchive;
@@ -654,7 +659,7 @@ function wireUI() {
   };
   // one close path, so the ESC button and the Escape key cannot diverge
   document.querySelectorAll('[data-close]').forEach(b => b.onclick = closePanels);
-  addEventListener('beforeunload', () => { if (App.game && App.state >= ST.PLAY) Save.write(saveState()); });
+  addEventListener('beforeunload', () => { if (App.game && App.state >= ST.PLAY && App.state !== ST.GARAGE) Save.write(saveState()); });
 }
 
 function buildProfileUI() {
@@ -1025,9 +1030,11 @@ function tick(dt) {
 
   /* ---------------- global keys ---------------- */
   if (input.hit('Escape')) {
-    if (App.state === ST.PLAY) openPanel('pause', ST.PAUSE);
+    if (App.state === ST.GARAGE) App.garage.close(false);
+    else if (App.state === ST.PLAY) openPanel('pause', ST.PAUSE);
     else if (App.state === ST.PAUSE || App.state === ST.CODEX || App.state === ST.HELP || App.state === ST.PROFILE) closePanels();
   }
+  if (App.state === ST.GARAGE) { App.garage.render(); input.endFrame(); return; }
   if (input.hit('Tab')) {
     if (App.state === ST.PLAY && !App.rupture.cinematicActive && !App.escape.cinematicActive) { App.hud.refreshCodex(App.game); openPanel('codex', ST.CODEX); }
     else if (App.state === ST.CODEX) closePanels();

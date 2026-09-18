@@ -14,6 +14,8 @@ import { clamp, sstep, lerp, makeRNG } from '../core/rng.js';
 import { MARS_G } from '../world/terrain.js';
 import { prepareRoverMaterial, setObjectAnisotropy, setPracticalShadow } from '../core/model-materials.js';
 
+import { PAINTS, normalizeAppearance, prepareBodyPaint, applyBodyPaint } from './vehicle-appearance.js';
+
 const DS_STANDARD_CAR_MODEL = 'assets/models/ds-standard-car/ds-standard-car.glb';
 const DS_STANDARD_CAR_LENGTH = 4.18;
 const DS_STANDARD_CAR_GROUND = -0.94;
@@ -661,6 +663,7 @@ export class Rover {
       }
 
       this.visualModel = exterior;
+      this.paintSurfaces = prepareBodyPaint(exterior);
       setObjectAnisotropy(exterior, this.quality?.anisotropy ?? 8);
       this.body.visible = false;
       console.info(`[REGOLITH] DS standard car loaded (${this.modelWheels.length}/6 animated wheels)`);
@@ -669,6 +672,20 @@ export class Rover {
       console.warn(`[REGOLITH] DS standard car unavailable; retaining procedural rover: ${error?.message || error}`);
       return false;
     }
+  }
+
+  setAppearance(value) {
+    const appearance = normalizeAppearance(value);
+    if (!this.visualModel) appearance.vehicle = 'survey';
+    this.appearance = appearance;
+    this.body.visible = appearance.vehicle === 'survey';
+    if (this.visualModel) this.visualModel.visible = !this.body.visible;
+    const preset = PAINTS.find(p => p.id === appearance.paint);
+    const color = appearance.paint === 'original' ? null : new THREE.Color(preset?.color || appearance.color);
+    applyBodyPaint(this.paintSurfaces || [], color);
+    this.factoryPaint ||= Object.fromEntries(['gold', 'white', 'plate'].map(k => [k, this.mats[k].color.clone()]));
+    for (const key of ['gold', 'white', 'plate']) this.mats[key].color.copy(color || this.factoryPaint[key]);
+    return { ...appearance };
   }
 
   setQuality(quality) {

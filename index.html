@@ -10,7 +10,7 @@
 <!-- ?v= is a cache buster: GitHub Pages serves assets with max-age=600, so a
      returning player keeps the old layout for ten minutes after a deploy.
      Bump this whenever styles.css changes in a way players must see. -->
-<link rel="stylesheet" href="src/ui/styles.css?v=16" />
+<link rel="stylesheet" href="src/ui/styles.css?v=17" />
 <link rel="stylesheet" href="src/ui/flower-archive.css?v=1" />
 <script type="importmap">
 {
@@ -66,11 +66,38 @@
   <nav class="menu-actions" aria-label="主菜单">
     <button class="menu-option primary" id="btnPlay"><i aria-hidden="true"></i>开始运输</button>
     <button class="menu-option" id="btnContinue" hidden><i aria-hidden="true"></i>继续任务</button>
+    <button class="menu-option" id="btnGarage"><i aria-hidden="true"></i>车辆与喷漆</button>
+    <p id="garageSummary" class="menu-garage-summary"></p>
     <button class="menu-option" id="btnProfile"><i aria-hidden="true"></i>个人档案</button>
     <button class="menu-option" id="btnControls"><i aria-hidden="true"></i>操作说明</button>
     <button class="menu-option" id="btnSettings"><i aria-hidden="true"></i>系统设置</button>
   </nav>
 </div>
+
+<!-- ============ VEHICLE GARAGE ============ -->
+<section id="garage" class="garage hidden" role="dialog" aria-modal="true" aria-labelledby="garageTitle">
+  <header class="garage-header">
+    <div><p>地表后勤部 / VEHICLE BAY</p><h1 id="garageTitle">为远行，换一种颜色。</h1></div>
+    <button id="garageBack" type="button">返回菜单 <span>ESC</span></button>
+  </header>
+  <div class="garage-layout">
+    <div class="garage-preview">
+      <div class="garage-preview-label"><p id="garageModelTag"></p><h2 id="garageModelName"></h2></div>
+      <canvas id="garageCanvas" aria-label="车辆三维预览，拖动可旋转"></canvas>
+      <p id="garagePreviewError" hidden>三维预览暂不可用，仍可选择外观并进入游戏。</p>
+      <div class="garage-orbit"><button id="garageRotateLeft" aria-label="向左旋转车辆" type="button">←</button><span>拖动车身 · 360° 预览</span><button id="garageRotateRight" aria-label="向右旋转车辆" type="button">→</button></div>
+    </div>
+    <aside class="garage-options">
+      <section><h2><span>01</span> 选择车辆</h2><div id="garageVehicles"></div><p class="garage-note">两种外观，相同驾驶性能。</p></section>
+      <section><h2><span>02</span> 车身喷漆 <b id="garagePaintName" aria-live="polite"></b></h2>
+        <div id="garagePaints" class="garage-paints"></div>
+        <label id="garageColorLabel" class="garage-custom"><span>调一款自己的颜色</span><input id="garageColor" type="color" value="#d45138" aria-label="自选车身颜色"></label>
+        <button id="garageOriginal" class="garage-reset" type="button">恢复原厂涂装 ↺</button>
+      </section>
+      <footer><button id="garageApply" type="button">使用这套外观 <span>↗</span></button><p>保存后用于新任务和继续任务</p></footer>
+    </aside>
+  </div>
+</section>
 
 <!-- ============ HUD ============ -->
 <div id="hud" class="hud hidden">
